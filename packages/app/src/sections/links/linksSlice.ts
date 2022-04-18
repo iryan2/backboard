@@ -1,5 +1,6 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 import { getHead as getHeadSelector } from 'features/selectors'
+import rootReducer from 'rootReducer'
 import { AppThunk } from 'store'
 
 const host = 'https://iryan2.backboard.page'
@@ -16,10 +17,12 @@ export type Link = {
 
 type Head = string
 
+export type RootState = ReturnType<typeof rootReducer>
 type State = {
   head: Head
   links: Link[]
 }
+export type GetState = () => RootState
 
 const linksSlice = createSlice({
   name: 'links',
@@ -44,7 +47,7 @@ async function getHead() {
   return data
 }
 
-export const fetchHead = (): AppThunk => async (dispatch) => {
+export const fetchHead = (): AppThunk => async (dispatch: any) => {
   try {
     const head = await getHead()
     dispatch(linksSlice.actions.headLoaded(head.head))
@@ -61,7 +64,7 @@ async function getLink(head: Head) {
 
 export const fetchLink =
   (head: Head): AppThunk =>
-  async (dispatch, getState) => {
+  async (dispatch: any) => {
     try {
       const link = await getLink(head)
       dispatch(linksSlice.actions.linkLoaded(link))
@@ -73,15 +76,16 @@ export const fetchLink =
     }
   }
 
-export const fetchLinks = (): AppThunk => async (dispatch, getState) => {
-  try {
-    await dispatch(fetchHead())
-    const head = getHeadSelector(getState())
+export const fetchLinks =
+  (): AppThunk => async (dispatch: any, getState: any) => {
+    try {
+      await dispatch(fetchHead())
+      const head = getHeadSelector(getState())
 
-    if (head) {
-      await dispatch(fetchLink(head))
+      if (head) {
+        await dispatch(fetchLink(head))
+      }
+    } catch (e) {
+      console.error(e)
     }
-  } catch (e) {
-    console.error(e)
   }
-}
