@@ -396,16 +396,9 @@
    * 3. It's useful to have a centralized inventory of all projects and their important metadata.
    */
   "projects": [
-    // {
-    //   /**
-    //    * The NPM package name of the project (must match package.json)
-    //    */
-    //   "packageName": "my-app",
-    // 
-    //   /**
-    //    * The path to the project folder, relative to the rush.json config file.
-    //    */
-    //   "projectFolder": "apps/my-app",
+    {
+      "packageName": "backboard-app",
+      "projectFolder": "packages/app"
     // 
     //   /**
     //    * An optional category for usage in the "browser-approved-packages.json"
@@ -458,7 +451,7 @@
     //     * command "rush list --only tag:my-custom-tag"
     //     */
     //   // "tags": ["apps", "web"]
-    // },
+    },
     // 
     // {
     //   "packageName": "my-controls",
