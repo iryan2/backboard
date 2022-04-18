@@ -17,7 +17,7 @@ export type SubmissionState = 'initial' | 'attempt' | 'success' | 'fail'
 
 export function AddLinkForm({ loggedIn }: Props) {
   const [title, setTitle] = useState('')
-  const [submissinoState, setSubmissionState] =
+  const [submissionState, setSubmissionState] =
     useState<SubmissionState>('initial')
   const [url, setUrl] = useState('')
   const github = useGithub()
@@ -79,14 +79,21 @@ export function AddLinkForm({ loggedIn }: Props) {
     }
     head.content.head = newLink.id
     console.log('head content', head.content)
-    const updatedHeadResponse = await github.put('head.json', {
-      message: `Update head for link: ${newLink.title}\n\n${newLink.href}`,
-      content: btoa(JSON.stringify(head.content)),
-      sha: head.sha,
-    })
-    console.log('updatedHeadResponse', updatedHeadResponse)
+    try {
+      const updatedHeadResponse = await github.put('head.json', {
+        message: `Update head for link: ${newLink.title}\n\n${newLink.href}`,
+        content: btoa(JSON.stringify(head.content)),
+        sha: head.sha,
+      })
+      console.log('updatedHeadResponse', updatedHeadResponse)
 
-    setSubmissionState('success')
+      setSubmissionState('success')
+      setTitle('')
+      setUrl('')
+      setTimeout(() => setSubmissionState('initial'))
+    } catch {
+      setSubmissionState('fail')
+    }
   }
 
   return (
@@ -98,15 +105,17 @@ export function AddLinkForm({ loggedIn }: Props) {
               name="title"
               value={title}
               onChange={(value) => setTitle(value)}
+              disabled={submissionState === 'attempt'}
             />
             <Spacer height={4} />
             <TextArea
               name="content"
               value={url}
               onChange={(value) => setUrl(value)}
+              disabled={submissionState === 'attempt'}
             />
             <Spacer height={8} />
-            <SubmitButton state={submissinoState} onClick={handleSubmit} />
+            <SubmitButton state={submissionState} onClick={handleSubmit} />
           </Stack>
         </form>
       ) : (
