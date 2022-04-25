@@ -16,6 +16,8 @@
 
   # Default build command.
   command = """
+  echo "netlify config file: rush update"
+  node common/scripts/install-run-rush.js update && 
   echo "netlify config file: rush install"
   node common/scripts/install-run-rush.js install && 
   echo "netlify config file: rush rebuild"
