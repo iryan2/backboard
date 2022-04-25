@@ -6,6 +6,9 @@ import { Spacer } from 'components/layout/Spacer'
 import { TextInput } from 'components/form/TextInput'
 import { TextArea } from 'components/form/TextArea'
 import { SubmitButton } from 'components/form/SubmitButton'
+import { postNewLink } from './postNewLink'
+import { linkPreviousToNew } from './linkPreviousToNew'
+import { updateHead } from './updateHead'
 
 const headFilename = 'head.json'
 
@@ -14,6 +17,19 @@ type Props = {
 }
 
 export type SubmissionState = 'initial' | 'attempt' | 'success' | 'fail'
+export type Head = {
+  id: string
+  content: string
+  sha: string
+}
+export type NewLink = {
+  id: string
+  title: string
+  href: string
+  time: string
+  next: null
+  prev: string
+}
 
 export function AddLinkForm({ loggedIn }: Props) {
   const [title, setTitle] = useState('')
@@ -23,16 +39,16 @@ export function AddLinkForm({ loggedIn }: Props) {
   const github = useGithub()
 
   async function handleSubmit() {
-    const currentHeadResponse = await github.get(headFilename)
     setSubmissionState('attempt')
-    const { sha: currentHeadSha, content: currentHeadContent } =
-      currentHeadResponse.data
+    const currentHead = await github.get(headFilename)
 
-    const originalHead = {
-      sha: currentHeadSha,
-      id: JSON.parse(atob(currentHeadContent)).head,
+    const head = {
+      id: JSON.parse(atob(currentHead.data.content)).head,
+      content: JSON.parse(atob(currentHead.data.content)),
+      sha: currentHead.data.sha,
     }
-    console.log('head before writing new link', originalHead)
+    console.log('head before writing new link', head)
+
     // post new one,
     // grab next value from current head
     // generate guid
@@ -43,52 +59,17 @@ export function AddLinkForm({ loggedIn }: Props) {
       href: url,
       time: new Date().toISOString(),
       next: null,
-      prev: originalHead.id,
+      prev: head.id,
     }
-    console.log('newLink', newLink)
-    const newLinkPostResponse = await github.put(`${newLink.id}.json`, {
-      message: `Create new link: ${newLink.title}\n\n${newLink.href}`,
-      content: btoa(JSON.stringify(newLink)),
-    })
-    console.log('response', newLinkPostResponse)
-
-    // update previous head, so ~`previousHead.next` points to the link we just created
-    const { data: prevData } = await github.get(`${originalHead.id}.json`)
-    console.log('prevResponse', prevData)
-    const prev = {
-      id: prevData.id,
-      content: JSON.parse(atob(prevData.content)),
-      sha: prevData.sha,
-    }
-    console.log('prev', prev)
-    prev.content.next = newLink.id
-    const updatedPrevResponse = await github.put(`${originalHead.id}.json`, {
-      message: `Update prev for link: ${newLink.title}\n\n${newLink.href}`,
-      content: btoa(JSON.stringify(prev.content)),
-      sha: prev.sha,
-    })
-    console.log('updatedPrevResponse', updatedPrevResponse)
-
-    // update head pointer
-    const { data: headData } = await github.get('head.json')
-    const head = {
-      content: JSON.parse(atob(headData.content)),
-      sha: headData.sha,
-    }
-    head.content.head = newLink.id
-    console.log('head content', head.content)
     try {
-      const updatedHeadResponse = await github.put('head.json', {
-        message: `Update head for link: ${newLink.title}\n\n${newLink.href}`,
-        content: btoa(JSON.stringify(head.content)),
-        sha: head.sha,
-      })
-      console.log('updatedHeadResponse', updatedHeadResponse)
+      await postNewLink(newLink)
+      await linkPreviousToNew(newLink, head)
+      await updateHead(newLink, head)
 
       setSubmissionState('success')
       setTitle('')
       setUrl('')
-      setTimeout(() => setSubmissionState('initial'))
+      setTimeout(() => setSubmissionState('initial'), 1000)
     } catch {
       setSubmissionState('fail')
     }
