@@ -1,7 +1,6 @@
 const localStorageKey = 'auth_token'
 
 export function useToken() {
-  console.log('usetoken called')
   // see if we've already got a token
   const storedToken = localStorage.getItem(localStorageKey)
   if (storedToken) {
