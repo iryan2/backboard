@@ -38,8 +38,6 @@ export function AddLinkForm({ loggedIn }: Props) {
     // generate guid
     // assemble data
     const newLink = {
-      // TODO: remove ts-ignore when TS knows about the new API
-      // @ts-ignore: Bleeding edge UUID API, TS doesn't know about it yet
       id: crypto.randomUUID(),
       title,
       href: url,
