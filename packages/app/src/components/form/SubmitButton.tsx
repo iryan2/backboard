@@ -31,10 +31,10 @@ function getLabel(state: SubmissionState) {
     case 'initial':
       return 'Submit'
     case 'attempt':
-      return 'Shoots!'
+      return 'Shoots...'
     case 'success':
       return 'Score!'
     case 'fail':
-      return 'Air ball'
+      return 'Failed'
   }
 }

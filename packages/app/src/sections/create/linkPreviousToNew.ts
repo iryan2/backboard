@@ -1,5 +1,5 @@
 import { getGithubInstance } from 'features/auth/getGithubInstance'
-import type { Head, NewLink } from './AddLinkForm'
+import type { Head, NewLink } from './postNewLink'
 
 export async function linkPreviousToNew(newLink: NewLink, head: Head) {
   const github = getGithubInstance()
