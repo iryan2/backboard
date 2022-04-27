@@ -12,6 +12,7 @@ export async function linkPreviousToNew(newLink: NewLink, head: Head) {
     sha: prevData.sha,
   }
   console.log('prev', prev)
+
   prev.content.next = newLink.id
   const updatedPrevResponse = await github.put(`${head.id}.json`, {
     message: `Update prev for link: ${newLink.title}\n\n${newLink.href}`,

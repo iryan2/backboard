@@ -33,7 +33,7 @@ function getLabel(state: SubmissionState) {
     case 'attempt':
       return 'Shoots...'
     case 'success':
-      return 'Score!'
+      return 'Scores!'
     case 'fail':
       return 'Failed'
   }

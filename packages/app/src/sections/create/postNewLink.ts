@@ -1,7 +1,8 @@
 import { getGithubInstance } from 'features/auth/getGithubInstance'
 import { linkPreviousToNew } from './linkPreviousToNew'
-import { updateHead } from './updateHead'
+import { updateHead } from './updateHeadPointer'
 
+export const headPointerFilename = 'head.json'
 export type Head = {
   id: string
   content: string
@@ -17,10 +18,9 @@ export type NewLink = {
 }
 
 export async function postNewLink(title: string, url: string) {
-  const headFilename = 'head.json'
   const github = getGithubInstance()
 
-  const currentHead = await github.get(headFilename)
+  const currentHead = await github.get(headPointerFilename)
   const head = {
     id: JSON.parse(atob(currentHead.data.content)).head,
     content: JSON.parse(atob(currentHead.data.content)),
@@ -44,5 +44,5 @@ export async function postNewLink(title: string, url: string) {
   console.log('post new link response', newLinkPostResponse)
 
   await linkPreviousToNew(newLink, head)
-  await updateHead(newLink, head)
+  await updateHead(newLink)
 }
