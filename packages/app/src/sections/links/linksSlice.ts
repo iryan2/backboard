@@ -10,7 +10,7 @@ export type Link = {
   id: string
   title: string
   href: string
-  timestamp: string
+  time: string
   next: string | null
   prev: string | null
 }
@@ -35,6 +35,10 @@ const linksSlice = createSlice({
     linkLoaded: (state: State, action: PayloadAction<Link>) => ({
       ...state,
       links: [...state.links, action.payload],
+    }),
+    linkPosted: (state: State, action: PayloadAction<Link>) => ({
+      ...state,
+      links: [action.payload, ...state.links],
     }),
   },
 })

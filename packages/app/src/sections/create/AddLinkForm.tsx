@@ -6,6 +6,8 @@ import { TextInput } from 'components/form/TextInput'
 import { TextArea } from 'components/form/TextArea'
 import { SubmitButton } from 'components/form/SubmitButton'
 import { postNewLink } from './postNewLink'
+import { useDispatch } from 'react-redux'
+import linksSlice from 'sections/links/linksSlice'
 
 type Props = {
   loggedIn: boolean
@@ -13,6 +15,7 @@ type Props = {
 
 export type SubmissionState = 'initial' | 'attempt' | 'success' | 'fail'
 export function AddLinkForm({ loggedIn }: Props) {
+  const dispatch = useDispatch()
   const [title, setTitle] = useState('')
   const [submissionState, setSubmissionState] =
     useState<SubmissionState>('initial')
@@ -22,9 +25,10 @@ export function AddLinkForm({ loggedIn }: Props) {
     setSubmissionState('attempt')
 
     try {
-      await postNewLink(title, url)
+      const newLink = await postNewLink(title, url)
 
       setSubmissionState('success')
+      dispatch(linksSlice.actions.linkPosted(newLink))
       setTitle('')
       setUrl('')
       setTimeout(() => setSubmissionState('initial'), 1500)

@@ -45,4 +45,5 @@ export async function postNewLink(title: string, url: string) {
 
   await linkPreviousToNew(newLink, head)
   await updateHead(newLink)
+  return newLink
 }
