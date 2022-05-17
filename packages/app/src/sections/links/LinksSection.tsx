@@ -50,38 +50,43 @@ export function Links() {
 async function handleDelete(id: string, headId: string, title: string) {
   const github = getGithubInstance()
 
-  if (id === headId) {
-    // retrieve head
-    const { data: headData } = await github.get(`${headId}.json`)
-    const headContent = decodeContent(headData.content)
-
-    // retrieve previous
-    const { data: prevData } = await github.get(`${headContent.prev}.json`)
-    const prevContent = decodeContent(prevData.content)
-
-    // // retrieve head pointer
-    const { data: headPointerData } = await github.get(headPointerFilename)
-
-    const updatedHeadResponse = await github.put(headPointerFilename, {
-      message: `Updating head pointer - deleting link ${title}`,
-      // change head to head.prev
-      content: replaceHeadPointer(headContent.prev),
-      sha: headPointerData.sha,
-    })
-
-    // change new prev.next to null
-    prevContent.next = null
-    const updatedPrevResponse = await github.put(`${prevContent.id}.json`, {
-      message: `Update prev - deleting link ${title}`,
-      content: encodeContent(prevContent),
-      sha: prevData.sha,
-    })
-
-    // delete the old head (which is id)
-  } else {
-    // change id.prev.next to id.next
-    // change id.next.prev to id.prev
-    //  delete id
+  if (id !== headId) {
     console.log('id does not match head', id, headId)
+    return
   }
+
+  // retrieve head
+  const { data: headData } = await github.get(`${headId}.json`)
+  const headContent = decodeContent(headData.content)
+
+  // retrieve previous
+  const { data: prevData } = await github.get(`${headContent.prev}.json`)
+  const prevContent = decodeContent(prevData.content)
+
+  // // retrieve head pointer
+  const { data: headPointerData } = await github.get(headPointerFilename)
+
+  const updatedHeadResponse = await github.put(headPointerFilename, {
+    message: `Updating head pointer - deleting link ${title}`,
+    // change head to head.prev
+    content: replaceHeadPointer(headContent.prev),
+    sha: headPointerData.sha,
+  })
+
+  // change new prev.next to null
+  prevContent.next = null
+  const updatedPrevResponse = await github.put(`${prevContent.id}.json`, {
+    message: `Update prev - deleting link ${title}`,
+    content: encodeContent(prevContent),
+    sha: prevData.sha,
+  })
+
+  // delete the old head (which is id)
+  const deletingResponse = await github.put(`${headId}.json`, {
+    message: `writing null - deleting link ${title}`,
+    content: encodeContent({}),
+    sha: headData.sha,
+  })
+
+  console.log(`deletingResponse`, deletingResponse)
 }
