@@ -38,6 +38,7 @@ const linksSlice = createSlice({
     }),
     linkPosted: (state: State, action: PayloadAction<Link>) => ({
       ...state,
+      head: action.payload.id,
       links: [action.payload, ...state.links],
     }),
   },
